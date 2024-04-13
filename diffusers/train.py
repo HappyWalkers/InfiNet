@@ -91,7 +91,7 @@ def load_primary_models(pretrained_model_path):
     # Load the pretrained weights
     pretrained_dict = torch.load(
         model_path,
-        map_location=torch.device('cuda'),
+        map_location=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
     )
     unet.load_state_dict(pretrained_dict, strict=False)
 
@@ -276,7 +276,7 @@ def main(
         gradient_accumulation_steps=gradient_accumulation_steps,
         mixed_precision=mixed_precision,
         log_with="tensorboard",
-        logging_dir=output_dir
+        project_dir=output_dir
     )
 
     # Make one log on every process with the configuration for debugging.

@@ -49,6 +49,7 @@ check_min_version("0.10.0.dev0")
 
 logger = get_logger(__name__, log_level="INFO")
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def create_logging(logging, logger, accelerator):
     logging.basicConfig(
@@ -91,7 +92,7 @@ def load_primary_models(pretrained_model_path):
     # Load the pretrained weights
     pretrained_dict = torch.load(
         model_path,
-        map_location=torch.device('cuda'),
+        map_location=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
     )
     unet.load_state_dict(pretrained_dict, strict=False)
 
@@ -116,9 +117,9 @@ def main():
     # Load scheduler, tokenizer and models.
     noise_scheduler, tokenizer, text_encoder, vae, unet = load_primary_models(pretrained_model_path)
 
-    vae.to("cuda")
-    unet.to("cuda")
-    text_encoder.to("cuda")
+    vae.to(device)
+    unet.to(device)
+    text_encoder.to(device)
 
     # Enable VAE slicing to save memory.
     vae.enable_slicing()
@@ -146,8 +147,8 @@ def main():
     with torch.no_grad():
         video_frames = pipeline(
             prompt,
-            width=512,
-            height=384,
+            width=128,
+            height=128,
             num_frames=20,
             num_inference_steps=50,
             guidance_scale=7.5
