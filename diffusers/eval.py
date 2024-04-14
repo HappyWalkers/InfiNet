@@ -153,7 +153,7 @@ def main():
             num_inference_steps=50,
             guidance_scale=7.5
         ).frames
-    video_path = export_to_video(video_frames, out_file)
+    video_path = export_to_video(video_frames.squeeze(), out_file)
 
     del pipeline
     gc.collect()
