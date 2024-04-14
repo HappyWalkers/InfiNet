@@ -10,6 +10,7 @@ import gc
 from typing import Dict, Optional, Tuple
 from omegaconf import OmegaConf
 
+import numpy as np
 import cv2
 import torch
 import torch.nn.functional as F
@@ -67,6 +68,7 @@ def export_to_video(video_frames, output_video_path, fps):
     video_writer = cv2.VideoWriter(output_video_path, fourcc, fps=fps, frameSize=(w, h))
     for i in range(len(video_frames)):
         img = cv2.cvtColor(video_frames[i], cv2.COLOR_RGB2BGR)
+        img = np.clip(img, 0, 255).astype(np.uint8)
         video_writer.write(img)
 
 def create_output_folders(output_dir, config):
@@ -551,7 +553,7 @@ def main(
                                     num_inference_steps=validation_data.num_inference_steps,
                                     guidance_scale=validation_data.guidance_scale
                                 ).frames
-                            export_to_video(video_frames, out_file, train_data.get('fps', 8))
+                            export_to_video(video_frames.squeeze(), out_file, train_data.get('fps', 8))
 
                             del pipeline
                             gc.collect()
