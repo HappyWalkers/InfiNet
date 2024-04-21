@@ -5,7 +5,7 @@ import cv2
 from tqdm import tqdm
 from pathlib import Path
 
-def chop_video(video_path: str, folder:str, L: int, start_frame:int) -> int:
+def chop_video(video_path: str, caption_path: str, folder:str, L: int, start_frame:int) -> int:
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video file '{video_path}' not found.")
 
@@ -30,6 +30,14 @@ def chop_video(video_path: str, folder:str, L: int, start_frame:int) -> int:
         ret, frame = video.read()
         if ret:
             video_frames.append(frame)
+
+    # read the caption file
+    # the caption files is a text file with each line containing the caption for the corresponding frame
+    # read in the captions as a list
+    captions = []
+    with open(caption_path, "r") as f:
+        captions = f.readlines()
+    captions = captions[start_frame:start_frame + total_frames]
 
     dir_name = folder#Path(video_path).stem
     #dir_name = os.path.join(folder, dir_name)
@@ -61,19 +69,21 @@ def chop_video(video_path: str, folder:str, L: int, start_frame:int) -> int:
                 out.write(video_frames[j])
 
             out.release()
+
             # create a txt file alongside the video
+            # write the corresponding caption to the file
             with open(f"{dir_name}/part_{i//L}/subset_{i%L}.txt", "w") as f:
-                f.write(f"")
+                for j in range(start_index, end_index):
+                    f.write(captions[j])
 
     video.release()
     return total_frames
 
-def stuff(video_path: str, L: int, only_once = True):
-
-    only_once = True
-
+def stuff(video_path: str, caption_path: str, L: int, only_once = True):
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video file '{video_path}' not found.")
+    if not os.path.exists(caption_path):
+        raise FileNotFoundError(f"Caption file '{caption_path}' not found.")
 
     video = cv2.VideoCapture(video_path)
     fps = int(video.get(cv2.CAP_PROP_FPS))
@@ -95,7 +105,7 @@ def stuff(video_path: str, L: int, only_once = True):
         video_path_new = os.path.join(cur_dir_name, dir_name, vid_name)
         os.rename(video_path, video_path_new)
         video_path = video_path_new
-        start_frame += chop_video(video_path, dir_name, L, start_frame)
+        start_frame += chop_video(video_path, caption_path, dir_name, L, start_frame)
         scenario += 1
 
         if only_once:
@@ -110,11 +120,12 @@ def stuff(video_path: str, L: int, only_once = True):
 
 def main():
     parser = argparse.ArgumentParser(description="Chop a video file into subsets of frames.")
-    parser.add_argument("video_file", help="Path to the video file.")
+    parser.add_argument("--video_file", help="Path to the video file.")
+    parser.add_argument("--caption_file", help="Path to the caption file.")
     parser.add_argument("--L", help="Num of splits on each level.")
-    parser.add_argument("--subscenariosplit", help="Should it split ", action='store_true', default=False)
+    parser.add_argument("--subscenariosplit", help="Should it split ", action='store_true', default=True)
     args = parser.parse_args()
-    stuff(args.video_file, int(args.L), bool(args.subscenariosplit != None and args.subscenariosplit))
+    stuff(args.video_file, args.caption_file, int(args.L), args.subscenariosplit)
 
 if __name__ == "__main__":
     main()
