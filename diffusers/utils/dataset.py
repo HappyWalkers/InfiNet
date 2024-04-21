@@ -61,13 +61,14 @@ class VideoDataset(Dataset):
 
         if self.train_infinet:
             self.init_infinet_video_data()
-        self.depth = None
 
     def init_infinet_video_data(self):
         print("Initializing InfiNet Dataset")
         self.depths, self.train_data = self.count_folders(self.train_data)
-        self.infindex = 0
-        self.prev_depth = 0
+        self.depth_subsetidx_list = []
+        for depth in range(self.depths):
+            for i in range(len(self.train_data[depth]["mp4_data"])):
+                self.depth_subsetidx_list.append((depth, i))
 
     def count_folders(self, path, depth_counter=0, parts_counter=None):
         if parts_counter is None:
@@ -208,10 +209,7 @@ class VideoDataset(Dataset):
 
     def __len__(self):
         if self.train_data is not None:
-            try:
-                return len(self.train_data['data'])
-            except:
-                return 1
+            return len(self.depth_subsetidx_list)
         else:
             return 1
 
@@ -221,21 +219,15 @@ class VideoDataset(Dataset):
         video = None
         prompt = None
         prompt_ids = None
+        if self.train_infinet:
+            depth, infindex = self.depth_subsetidx_list[index]
+            # print("Using Depth:", depth)
 
-        if self.train_infinet and self.depth != None:
+            # parts = int(self.train_data[depth]["part_count"])
+            # if self.use_random_start_idx:
+            #     self.infindex = secrets.randbelow(parts)
 
-            print("Using Depth:",self.depth)
-
-            depth = self.depth
-
-            parts = int(self.train_data[depth]["part_count"])
-            if depth != self.prev_depth or self.infindex > parts:
-                self.infindex = 0
-                self.prev_depth = depth
-            if self.use_random_start_idx:
-                self.infindex = secrets.randbelow(parts)
-
-            train_data = self.train_data[depth]["mp4_data"][self.infindex]["mp4_path"]
+            train_data = self.train_data[depth]["mp4_data"][infindex]["mp4_path"]
             vr = decord.VideoReader(train_data, width=self.width, height=self.height)
 
             sample_index = self.get_infinet_frame_range(depth, vr)
@@ -244,10 +236,8 @@ class VideoDataset(Dataset):
             video = vr.get_batch(sample_index)
             video = rearrange(video, "f h w c -> f c h w")
 
-            prompt = self.train_data[depth]["mp4_data"][self.infindex]["txt_content"]
+            prompt = self.train_data[depth]["mp4_data"][infindex]["txt_content"]
             prompt_ids = self.get_prompt_ids(prompt)
-
-            self.infindex += 1
 
 
         # Check if we're doing single video training

@@ -6,8 +6,8 @@ train_data:
   json_path: "./json/train.json"
   preprocessed: True
   n_sample_frames: 8
-  width: 256      
-  height: 128
+  width: 128      
+  height: 64
   sample_start_idx: 0
   sample_frame_rate: 15
   use_random_start_idx: False
@@ -22,8 +22,8 @@ validation_data:
   prompt: ""
   sample_preview: True
   num_frames: 16
-  width: 256
-  height: 128
+  width: 128
+  height: 64
   num_inference_steps: 50
   guidance_scale: 9
 
