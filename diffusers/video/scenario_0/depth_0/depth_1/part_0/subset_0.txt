@@ -1,0 +1,1 @@
+"Video starts with digits 8 and 5. The 8 moves left and up, while the 5 moves right, initially up, then down, all while maintaining size and orientation."

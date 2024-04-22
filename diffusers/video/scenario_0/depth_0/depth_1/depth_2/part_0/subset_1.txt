@@ -1,0 +1,1 @@
+"Digit 8 moves diagonally left-upward while digit 5 moves diagonally right-upward, both maintaining size and rotation, repeated four times."

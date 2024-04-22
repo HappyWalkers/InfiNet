@@ -1,0 +1,1 @@
+The video starts with digits 8 and 5. The 8 moves left and upwards, while the 5 moves right and alternates between upwards and downwards, all while maintaining their size and rotation. This pattern continues throughout the video.

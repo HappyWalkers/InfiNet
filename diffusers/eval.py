@@ -37,6 +37,7 @@ from diffusers.utils import check_min_version
 from diffusers.utils.import_utils import is_xformers_available
 from diffusers.models.attention_processor import AttnProcessor2_0, Attention
 from diffusers.models.attention import BasicTransformerBlock
+from safetensors.torch import load_file
 
 from transformers import CLIPTextModel, CLIPTokenizer
 from utils.dataset import VideoDataset
@@ -88,12 +89,9 @@ def load_primary_models(pretrained_model_path):
 
     unet = UNet3DConditionModel()
 
-    model_path = os.path.join(os.getcwd(), pretrained_model_path, 'unet', 'diffusion_pytorch_model.bin')
+    model_path = os.path.join(os.getcwd(), pretrained_model_path, 'unet', 'diffusion_pytorch_model.safetensors')
     # Load the pretrained weights
-    pretrained_dict = torch.load(
-        model_path,
-        map_location=torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'),
-    )
+    pretrained_dict = load_file(model_path)
     unet.load_state_dict(pretrained_dict, strict=False)
 
     has_pretrained_weights = False
@@ -140,7 +138,7 @@ def main():
     diffusion_scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
     pipeline.scheduler = diffusion_scheduler
 
-    prompt = "Couple walking on the beach"
+    prompt = "The video starts with digits 8 and 5. The 8 moves left and upwards, while the 5 moves right and alternates between upwards and downwards, all while maintaining their size and rotation. This pattern continues throughout the video."
     os.makedirs("samples", exist_ok=True)
     out_file = f"samples/eval_{prompt}.mp4"
 
@@ -148,7 +146,7 @@ def main():
         video_frames = pipeline(
             prompt,
             width=128,
-            height=128,
+            height=64,
             num_frames=20,
             num_inference_steps=50,
             guidance_scale=7.5

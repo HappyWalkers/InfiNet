@@ -1,0 +1,1 @@
+"8" moves left thrice, then right, each time down by 1 pixel, without rotation. "5" moves consistently left and up by 2 pixels, maintaining size and angle.

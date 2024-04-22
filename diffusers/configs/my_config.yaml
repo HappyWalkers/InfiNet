@@ -19,7 +19,7 @@ train_data:
   infinet_source_path: "video"
 
 validation_data:
-  prompt: ""
+  prompt: "The video starts with digits 8 and 5. The 8 moves left and upwards, while the 5 moves right and alternates between upwards and downwards, all while maintaining their size and rotation. This pattern continues throughout the video."
   sample_preview: True
   num_frames: 16
   width: 128
@@ -31,8 +31,8 @@ learning_rate: 5e-6
 adam_weight_decay: 1e-2
 train_batch_size: 1
 max_train_steps: 50000
-checkpointing_steps: 5000
-validation_steps: 100
+checkpointing_steps: 1000
+validation_steps: 500
 trainable_modules:
   - "attn1.to_out"
   - "attn2.to_out"

@@ -1,0 +1,1 @@
+"Digit 8 moves consistently left and up by 1 pixel, while digit 5 moves right and alternates between up and down by 2 pixels, both maintaining size and rotation."

@@ -1,0 +1,1 @@
+"Digit 8 moves diagonally down-left while digit 5 moves in an upward left direction, both maintaining their size and orientation."

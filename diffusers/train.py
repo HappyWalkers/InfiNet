@@ -475,9 +475,6 @@ def main(
                 continue
             
             with accelerator.accumulate(unet) ,accelerator.accumulate(text_encoder.text_model.encoder):
-
-                text_prompt = batch['text_prompt'][0]
-                
                 with accelerator.autocast():
                     loss, latents = finetune_unet(batch, train_encoder=train_text_encoder)
                 
@@ -522,10 +519,7 @@ def main(
                     pipeline.save_pretrained(save_path)
                     logger.info(f"Saved model at {save_path} on step {global_step}")
 
-                    del pipeline
-
                 if should_sample(global_step, validation_steps, validation_data):
-                    if global_step == 1: print("Performing validation prompt.")
                     if accelerator.is_main_process:
                         with accelerator.autocast():
                             unet.eval()
@@ -541,12 +535,12 @@ def main(
                             diffusion_scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
                             pipeline.scheduler = diffusion_scheduler
 
-                            prompt = text_prompt if len(validation_data.prompt) <= 0 else validation_data.prompt
-                            out_file = f"{output_dir}/samples/{global_step}_{prompt}.mp4"
+                            val_prompt = batch['text_prompt'][0] if len(validation_data.prompt) <= 0 else validation_data.prompt
+                            out_file = f"{output_dir}/samples/{global_step}_{val_prompt}.mp4"
                             
                             with torch.no_grad():
                                 video_frames = pipeline(
-                                    prompt,
+                                    val_prompt,
                                     width=validation_data.width,
                                     height=validation_data.height,
                                     num_frames=validation_data.num_frames,
@@ -555,10 +549,7 @@ def main(
                                 ).frames
                             export_to_video(video_frames.squeeze(), out_file, train_data.get('fps', 8))
 
-                            del pipeline
-                            gc.collect()
-
-                    logger.info(f"Saved a new sample to {out_file}")
+                            logger.info(f"Saved a new sample to {out_file}")
 
             logs = {"step_loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             accelerator.log({"training_loss": loss.detach().item()}, step=step)

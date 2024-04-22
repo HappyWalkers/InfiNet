@@ -1,0 +1,1 @@
+"Digit 8 moves diagonally down-right while digit 5 moves diagonally up-left, both maintaining size and orientation, repeating for four frames."

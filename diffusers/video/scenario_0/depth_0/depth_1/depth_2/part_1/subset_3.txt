@@ -1,0 +1,1 @@
+The digit 8 moves consistently left and down by 1 pixel while the digit 5 moves right, predominantly down by 2 pixels, then up, all without rotation.

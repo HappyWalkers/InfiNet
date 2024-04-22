@@ -1,0 +1,1 @@
+"Digit 8 moves diagonally down-right by 1 pixel per frame, while digit 5 moves diagonally up-left by 1 pixel in the first 4 frames, then diagonally down-left for the remaining frames, both maintaining size and rotation."

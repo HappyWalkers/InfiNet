@@ -1,0 +1,1 @@
+"8" moves steadily right and down while "5" moves left and up, both maintaining size and orientation. This pattern repeats.

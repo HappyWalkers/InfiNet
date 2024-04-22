@@ -221,7 +221,6 @@ class VideoDataset(Dataset):
         prompt_ids = None
         if self.train_infinet:
             depth, infindex = self.depth_subsetidx_list[index]
-            # print("Using Depth:", depth)
 
             # parts = int(self.train_data[depth]["part_count"])
             # if self.use_random_start_idx:

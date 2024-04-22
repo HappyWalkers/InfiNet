@@ -1,0 +1,1 @@
+"8" moves diagonally left-upward while "5" moves diagonally right-downward, both maintaining size and orientation. This motion repeats for four frames.
